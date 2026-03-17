@@ -1,0 +1,106 @@
+Subject: [PATCH] 1_k8s_refactoring
+---
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle	(revision e961bc0f31a561ccf1f025854a16bd782fa028af)
++++ b/build.gradle	(revision 31b41ee5b56b94cfa3742d87c0b9f8c754d118b7)
+@@ -29,7 +29,6 @@
+     mapstructVersion = '1.5.5.Final'
+     mapstructLombokBindingVersion = '0.2.0'
+     springdocVersion = '2.5.0'
+-    springCloudVersion = '2023.0.1'
+     lokiAppenderVersion = '1.5.1'
+ }
+ 
+@@ -41,9 +40,7 @@
+     implementation 'org.flywaydb:flyway-core'
+     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+-    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+     implementation 'org.springframework.retry:spring-retry'
+-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+     compileOnly 'org.projectlombok:lombok'
+@@ -60,12 +57,6 @@
+     testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
+ }
+ 
+-dependencyManagement {
+-    imports {
+-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+-    }
+-}
+-
+ bootBuildImage {
+     imageName = "${project.name}"
+     environment = ["BP_JVM_VERSION": "17.*"]
+Index: src/main/resources/application.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/resources/application.yml b/src/main/resources/application.yml
+--- a/src/main/resources/application.yml	(revision e961bc0f31a561ccf1f025854a16bd782fa028af)
++++ b/src/main/resources/application.yml	(revision 31b41ee5b56b94cfa3742d87c0b9f8c754d118b7)
+@@ -53,37 +53,8 @@
+         format_sql: true
+         # говорим hibernate показывать sql запросы в логах (для отладки и тестирования)
+         show_sql: true
+-  config:
+-    import: ${configserver.import}
+-  cloud:
+-    config:
+-      import-check:
+-        enabled: false
+-      request-connect-timeout: 5000
+-      request-read-timeout: 5000
+-      fail-fast: false
+-      retry:
+-        max-attempts: 6
+-        initial-interval: 1000
+-        max-interval: 2000
+-        multiplier: 1.1
+-      label: monitoring
+-
+-eureka:
+-  client:
+-    service-url:
+-      defaultZone: ${external.discovery-service-url}
+-    initial-instance-info-replication-interval-seconds: 5
+-  instance:
+-    lease-renewal-interval-in-seconds: 5
+-    lease-expiration-duration-in-seconds: 5
+-    prefer-ip-address: true
+-
+-configserver:
+-  import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:9095}
+ 
+ external:
+-  discovery-service-url: ${DISCOVERY_SERVICE_URL:http://localhost:8761/eureka/}
+   zipkin-endpoint: http://localhost:9411/api/v2/spans
+   loki-url: http://localhost:3100/loki/api/v1/push
+ 
+Index: src/test/resources/application-test.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/resources/application-test.yml b/src/test/resources/application-test.yml
+--- a/src/test/resources/application-test.yml	(revision e961bc0f31a561ccf1f025854a16bd782fa028af)
++++ b/src/test/resources/application-test.yml	(revision 31b41ee5b56b94cfa3742d87c0b9f8c754d118b7)
+@@ -5,10 +5,6 @@
+     username: user
+     password: password
+ 
+-eureka:
+-  client:
+-    enabled: false
+-
+ logging:
+   level:
+     org.springframework: DEBUG
